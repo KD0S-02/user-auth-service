@@ -52,7 +52,7 @@ public class UserControllerIntegrationsTests {
 
     @Test
     @Transactional
-    public void testListUsersReturnsUsersandReturns200() throws Exception {
+    public void testListUsersReturnsUsersAndReturns200() throws Exception {
         UserEntity testUser = TestDataUtil.createTestUserA();
         userService.saveUser(testUser);
         mockMvc.perform(
@@ -64,13 +64,29 @@ public class UserControllerIntegrationsTests {
 
     @Test
     @Transactional
-    public void testGetUserReturnsUsersandReturns200() throws Exception {
+    public void testGetUserReturnsUsersAndReturns200() throws Exception {
         UserEntity testUser = TestDataUtil.createTestUserA();
         UserEntity savedTestUser = userService.saveUser(testUser);
         mockMvc.perform(
                 MockMvcRequestBuilders.get("/users/" + savedTestUser.getId().toString())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isFound())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.username").value(savedTestUser.getUsername()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.pwdHash").value(savedTestUser.getPwdHash()));
+    }
+
+    @Test
+    @Transactional
+    public void testFullUpdateUserUpdatesUserAndReturn200() throws Exception {
+        UserEntity testUser = TestDataUtil.createTestUserA();
+        UserEntity savedTestUser = userService.saveUser(testUser);
+        savedTestUser.setUsername("UPDATED");
+        String savedTestUserJson = objectMapper.writeValueAsString(savedTestUser);
+        mockMvc.perform(
+                MockMvcRequestBuilders.put("/users/" + savedTestUser.getId().toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(savedTestUserJson))
+                .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.username").value(savedTestUser.getUsername()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.pwdHash").value(savedTestUser.getPwdHash()));
     }
