@@ -1,5 +1,6 @@
 package com.kd0s.user_auth_service;
 
+import com.kd0s.user_auth_service.enums.UserRole;
 import com.kd0s.user_auth_service.models.UserEntity;
 
 public final class TestDataUtil {
@@ -11,21 +12,27 @@ public final class TestDataUtil {
     public static UserEntity createTestUserA() {
         return UserEntity.builder()
                 .username("testUserA")
-                .pwdHash("asdaere123123d")
+                .password("asdaere123123d")
+                .email("testUserA@mail.com")
+                .role(UserRole.USER)
                 .build();
     }
 
     public static UserEntity createTestUserB() {
         return UserEntity.builder()
                 .username("testUserB")
-                .pwdHash("asf[pp[ere123123d")
+                .password("asf[pp[ere123123d")
+                .email("testUserB@mail.com")
+                .role(UserRole.USER)
                 .build();
     }
 
     public static UserEntity createTestUserC() {
         return UserEntity.builder()
                 .username("testUserC")
-                .pwdHash("asdaere11233123d")
+                .password("asdaere11233123d")
+                .email("testUserB@mail.com")
+                .role(UserRole.USER)
                 .build();
     }
 }

@@ -16,5 +16,9 @@ public class UserDto {
 
     private String username;
 
-    private String pwdHash;
+    private String password;
+
+    private String email;
+
+    private String role;
 }

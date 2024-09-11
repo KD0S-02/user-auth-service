@@ -1,8 +1,8 @@
 package com.kd0s.user_auth_service.controllers;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;

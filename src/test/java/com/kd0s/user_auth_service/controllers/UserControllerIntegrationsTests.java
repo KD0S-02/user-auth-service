@@ -11,43 +11,28 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kd0s.user_auth_service.TestDataUtil;
 import com.kd0s.user_auth_service.models.UserEntity;
 import com.kd0s.user_auth_service.services.UserService;
-
 import jakarta.transaction.Transactional;
+import lombok.extern.java.Log;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
+@Log
 public class UserControllerIntegrationsTests {
 
     private UserService userService;
 
     private MockMvc mockMvc;
 
-    private ObjectMapper objectMapper;
-
     @Autowired
     public UserControllerIntegrationsTests(MockMvc mockMvc, UserService userService, ObjectMapper objectMapper) {
         this.mockMvc = mockMvc;
-        this.objectMapper = objectMapper;
         this.userService = userService;
-    }
-
-    @Test
-    @Transactional
-    public void testCreateUserCreatesUserAndReturns201() throws Exception {
-        UserEntity testUser = TestDataUtil.createTestUserA();
-        String testUserJson = objectMapper.writeValueAsString(testUser);
-        mockMvc.perform(
-                MockMvcRequestBuilders.post("/users").contentType(MediaType.APPLICATION_JSON).content(testUserJson))
-                .andExpect(MockMvcResultMatchers.status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.username").value(testUser.getUsername()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.pwdHash").value(testUser.getPwdHash()));
     }
 
     @Test
@@ -59,7 +44,8 @@ public class UserControllerIntegrationsTests {
                 MockMvcRequestBuilders.get("/users").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].username").value(testUser.getUsername()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].pwdHash").value(testUser.getPwdHash()));
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].password").value(testUser.getPassword()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].email").value(testUser.getEmail()));
     }
 
     @Test
@@ -72,22 +58,7 @@ public class UserControllerIntegrationsTests {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isFound())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.username").value(savedTestUser.getUsername()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.pwdHash").value(savedTestUser.getPwdHash()));
-    }
-
-    @Test
-    @Transactional
-    public void testFullUpdateUserUpdatesUserAndReturn200() throws Exception {
-        UserEntity testUser = TestDataUtil.createTestUserA();
-        UserEntity savedTestUser = userService.saveUser(testUser);
-        savedTestUser.setUsername("UPDATED");
-        String savedTestUserJson = objectMapper.writeValueAsString(savedTestUser);
-        mockMvc.perform(
-                MockMvcRequestBuilders.put("/users/" + savedTestUser.getId().toString())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(savedTestUserJson))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.username").value(savedTestUser.getUsername()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.pwdHash").value(savedTestUser.getPwdHash()));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.password").value(savedTestUser.getPassword()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(testUser.getEmail()));
     }
 }

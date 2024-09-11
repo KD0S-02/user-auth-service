@@ -1,6 +1,7 @@
 package com.kd0s.user_auth_service.services.impl;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -27,7 +28,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<UserEntity> getUser(Long id) {
+    public Optional<UserEntity> getUser(UUID id) {
         return userRepository.findById(id);
     }
 
@@ -37,12 +38,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean isExists(Long id) {
+    public boolean isExists(UUID id) {
         return userRepository.existsById(id);
     }
 
     @Override
-    public UserEntity partialUpdate(UserEntity user, Long id) {
+    public UserEntity partialUpdate(UserEntity user, UUID id) {
         user.setId(id);
 
         return userRepository.findById(id).map(existingUser -> {
