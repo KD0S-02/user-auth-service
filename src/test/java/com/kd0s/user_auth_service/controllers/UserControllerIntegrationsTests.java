@@ -16,13 +16,11 @@ import com.kd0s.user_auth_service.TestDataUtil;
 import com.kd0s.user_auth_service.models.UserEntity;
 import com.kd0s.user_auth_service.services.UserService;
 import jakarta.transaction.Transactional;
-import lombok.extern.java.Log;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
-@Log
 public class UserControllerIntegrationsTests {
 
     private UserService userService;

@@ -30,6 +30,7 @@ public class AuthService implements UserDetailsService {
         UserEntity newUser = UserEntity.builder()
                 .username(data.username())
                 .password(encryptedPassword)
+                .email(data.email())
                 .role(data.role())
                 .build();
         return userRepository.save(newUser);

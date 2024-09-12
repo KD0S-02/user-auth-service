@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.auth0.jwt.JWT;
@@ -14,7 +15,7 @@ import com.kd0s.user_auth_service.models.UserEntity;
 
 @Service
 public class TokenProvider {
-
+    @Value("${security.jwt.token.secret-key}")
     private String JWT_SECRET;
 
     public String generateAccessToken(UserEntity user) {
