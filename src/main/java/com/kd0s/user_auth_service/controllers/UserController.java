@@ -1,7 +1,6 @@
 package com.kd0s.user_auth_service.controllers;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -45,7 +44,7 @@ public class UserController {
     }
 
     @GetMapping(path = "/users/{id}")
-    public ResponseEntity<UserDto> getUser(@PathVariable("id") UUID id) {
+    public ResponseEntity<UserDto> getUser(@PathVariable("id") Long id) {
         Optional<UserEntity> foundUser = userService.getUser(id);
 
         return foundUser.map(userEntity -> {
@@ -63,7 +62,7 @@ public class UserController {
     }
 
     @PutMapping(path = "/users/{id}")
-    public ResponseEntity<UserDto> fullUpdateUser(@PathVariable("id") UUID id, @RequestBody UserDto user) {
+    public ResponseEntity<UserDto> fullUpdateUser(@PathVariable("id") Long id, @RequestBody UserDto user) {
 
         if (!userService.isExists(id))
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -75,7 +74,7 @@ public class UserController {
     }
 
     @PatchMapping(path = "/users/{id}")
-    public ResponseEntity<UserDto> partialUpdateUser(@PathVariable("id") UUID id, @RequestBody UserDto user) {
+    public ResponseEntity<UserDto> partialUpdateUser(@PathVariable("id") Long id, @RequestBody UserDto user) {
 
         if (!userService.isExists(id))
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

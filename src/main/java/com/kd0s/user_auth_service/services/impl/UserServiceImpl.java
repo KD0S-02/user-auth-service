@@ -1,7 +1,6 @@
 package com.kd0s.user_auth_service.services.impl;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -28,7 +27,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<UserEntity> getUser(UUID id) {
+    public Optional<UserEntity> getUser(Long id) {
         return userRepository.findById(id);
     }
 
@@ -38,17 +37,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean isExists(UUID id) {
+    public boolean isExists(Long id) {
         return userRepository.existsById(id);
     }
 
     @Override
-    public UserEntity partialUpdate(UserEntity user, UUID id) {
+    public UserEntity partialUpdate(UserEntity user, Long id) {
         user.setId(id);
 
         return userRepository.findById(id).map(existingUser -> {
             Optional.ofNullable(user.getUsername()).ifPresent(existingUser::setUsername);
             Optional.ofNullable(user.getPassword()).ifPresent(existingUser::setPassword);
+            Optional.ofNullable(user.getEmail()).ifPresent(existingUser::setEmail);
+            Optional.ofNullable(user.getRole()).ifPresent(existingUser::setRole);
             return userRepository.save(existingUser);
         }).orElseThrow(() -> new RuntimeException("user does not exist"));
     }

@@ -1,7 +1,5 @@
 package com.kd0s.user_auth_service.dtos;
 
-import java.util.UUID;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class UserDto {
-    private UUID id;
+    private Long id;
 
     private String username;
 

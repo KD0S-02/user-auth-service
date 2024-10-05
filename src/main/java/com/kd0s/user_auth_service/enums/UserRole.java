@@ -1,7 +1,7 @@
 package com.kd0s.user_auth_service.enums;
 
 public enum UserRole {
-    ADMIN("admin"),
+    GUEST("guest"),
     USER("user");
 
     private String role;
