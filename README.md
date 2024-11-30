@@ -2,7 +2,7 @@
 
 This README outlines the available endpoints for user authentication on KDChat.io, built using Spring Boot.
 
-The Service is connected a PostgreSQL Database thats run on port `5432`.
+The Service is connected to a PostgreSQL Database thats run on port `5432`.
 
 
 ## Base URL 
