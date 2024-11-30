@@ -44,8 +44,6 @@ Authenticates a user with their credentials and returns two JWT tokens (accessTo
 * `400 Bad Request`: Missing or incorrect input
 
 
-### /api/v1/signup
-
 ### 2. **Sign Up**
 
 **Endpoint:** POST `/signup`
@@ -71,8 +69,6 @@ Registers a new user account in the system. The role field can either be "USER" 
 
 * `400 Bad Request`: Invalid input or user already exists
 
-
-### /api/v1/refresh
 
 ### 3. **Refresh Token**
 
