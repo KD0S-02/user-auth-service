@@ -11,23 +11,35 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.kd0s.user_auth_service.models.UserEntity;
 
 @Service
 public class TokenProvider {
     @Value("${security.jwt.token.secret-key}")
     private String JWT_SECRET;
 
-    public String generateAccessToken(UserEntity user) {
+    public String generateAccessToken(String username) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(JWT_SECRET);
             return JWT.create()
-                    .withSubject(user.getUsername())
-                    .withClaim("username", user.getUsername())
-                    .withExpiresAt(genAccessExpirationDate())
+                    .withSubject(username)
+                    .withClaim("username", username)
+                    .withExpiresAt(genAccessExpirationDate(0, 5))
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
-            throw new JWTCreationException("Error while creating token", exception);
+            throw new JWTCreationException("Error while creating Access token", exception);
+        }
+    }
+
+    public String generateRefreshToken(String username) {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(JWT_SECRET);
+            return JWT.create()
+                    .withSubject(username)
+                    .withClaim("username", username)
+                    .withExpiresAt(genAccessExpirationDate(3, 0))
+                    .sign(algorithm);
+        } catch (JWTCreationException exception) {
+            throw new JWTCreationException("Error while creating Refresh token", exception);
         }
     }
 
@@ -43,8 +55,7 @@ public class TokenProvider {
         }
     }
 
-    private Instant genAccessExpirationDate() {
-        return LocalDateTime.now().plusMinutes(10).toInstant(ZoneOffset.of("-03:00"));
+    private Instant genAccessExpirationDate(int days, int mins) {
+        return LocalDateTime.now().plusDays(days).plusMinutes(mins).toInstant(ZoneOffset.UTC);
     }
-
 }
