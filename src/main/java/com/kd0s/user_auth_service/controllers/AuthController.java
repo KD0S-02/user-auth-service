@@ -17,6 +17,7 @@ import com.kd0s.user_auth_service.dtos.JwtDto;
 import com.kd0s.user_auth_service.dtos.RefreshTokenDto;
 import com.kd0s.user_auth_service.dtos.SignInDto;
 import com.kd0s.user_auth_service.dtos.SignUpDto;
+import com.kd0s.user_auth_service.enums.UserRole;
 import com.kd0s.user_auth_service.models.TokenEntity;
 import com.kd0s.user_auth_service.models.UserEntity;
 import com.kd0s.user_auth_service.services.AuthService;
@@ -44,12 +45,20 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(@RequestBody @Validated SignUpDto data) throws Exception {
+        if (data.role() == null
+                || (data.role().equals(UserRole.USER) && data.password() == null || data.username() == null
+                        || data.email() == null))
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         authService.signUp(data);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PostMapping("/signin")
     public ResponseEntity<JwtDto> signIn(@RequestBody @Validated SignInDto data) {
+
+        if (data.password() == null || data.username() == null)
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
         UsernamePasswordAuthenticationToken usernamePassword = new UsernamePasswordAuthenticationToken(data.username(),
                 data.password());
 
@@ -72,16 +81,16 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<JwtDto> refresh(@RequestBody @Validated RefreshTokenDto data) {
 
-        String accessToken;
+        if (data.token() == null || !tokenService.isExists(data.token()))
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
-        if (!tokenService.isExists(data.token()))
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        String accessToken;
 
         try {
             String username = tokenProvider.validateToken(data.token());
             accessToken = tokenProvider.generateAccessToken(username);
         } catch (JWTVerificationException exception) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
         return new ResponseEntity<>(new JwtDto(accessToken, data.token()), HttpStatus.OK);
