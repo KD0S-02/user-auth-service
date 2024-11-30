@@ -75,7 +75,7 @@ public class AuthController {
 
         tokenService.saveToken(tokenEntity);
 
-        return new ResponseEntity<>(new JwtDto(accessToken, refreshToken), HttpStatus.OK);
+        return new ResponseEntity<>(new JwtDto(accessToken, refreshToken, user.getUsername()), HttpStatus.OK);
     }
 
     @PostMapping("/refresh")
@@ -85,14 +85,15 @@ public class AuthController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
         String accessToken;
+        String username;
 
         try {
-            String username = tokenProvider.validateToken(data.token());
+            username = tokenProvider.validateToken(data.token());
             accessToken = tokenProvider.generateAccessToken(username);
         } catch (JWTVerificationException exception) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        return new ResponseEntity<>(new JwtDto(accessToken, data.token()), HttpStatus.OK);
+        return new ResponseEntity<>(new JwtDto(accessToken, data.token(), username), HttpStatus.OK);
     }
 }
