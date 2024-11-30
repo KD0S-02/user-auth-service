@@ -32,7 +32,8 @@ Authenticates a user with their credentials and returns two JWT tokens (accessTo
 ```json
 {
   "accessToken": "secure-access-token",
-  "refreshToken": "secure-refresh-token"
+  "refreshToken": "secure-refresh-token",
+  "username": "user-here",
 }
 ```
 **Status Codes:**
@@ -88,7 +89,8 @@ Refreshes the user's accessToken when it is about to expire.
 ```json
 {
   "accessToken": "secure-access-token",
-  "refreshToken": "secure-refresh-token"
+  "refreshToken": "secure-refresh-token",
+  "username": "user-here"
 }
 ```
 **Status Codes:**
