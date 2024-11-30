@@ -9,7 +9,7 @@ The Service is connected to a PostgreSQL Database thats run on port `5432`.
 
 By Default the application runs on port `8080`, this can be configured in `/src/main/resources/application.yml`
 
-**Base URL** : `http://localhost:8080/api/v1`
+**Base URL** : `http://localhost:8080/api/v1/auth`
 
 ## Endpoints
 
