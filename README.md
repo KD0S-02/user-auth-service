@@ -18,7 +18,7 @@ By Default the application runs on port `8080`, this can be configured in `/src/
 **Endpoint:** POST `/signin`
 
 **Description:**  
-Authenticates a user with their credentials and returns two JWT tokens (accessToken and refreshToken) for session management.
+Authenticates a user with their credentials. The **accessToken** and **refreshToken** (JWT Tokens) are sent as **HttpOnly cookies**, and the response body includes only the authenticated user's username.
 
 **Request Body:**
 ```json
@@ -30,12 +30,18 @@ Authenticates a user with their credentials and returns two JWT tokens (accessTo
 
 **Response:**
 ```json
-{
-  "accessToken": "secure-access-token",
-  "refreshToken": "secure-refresh-token",
-  "username": "user-here",
+{ 
+  "username": "user-here"
 }
 ```
+
+**HttpOnly Cookies:**
+
+* `accessToken`: Used for session management.
+
+* `refreshToken`: Used to obtain a new access token when the current one expires.
+
+
 **Status Codes:**
 
 * `200 OK`: Authentication Successful
@@ -76,23 +82,22 @@ Registers a new user account in the system. The role field can either be "USER" 
 **Endpoint:** POST `/refresh`
 
 **Description:**  
-Refreshes the user's accessToken when it is about to expire.
+Generates a new **accessToken**, which is sent as an **HttpOnly cookie**. The **refreshToken** is sent automatically as **HttpOnly cookie** in the request header.
 
 **Request Body:**
-```json
-{
-  "token": "secure-refresh-token-here",
-}
-```
+None.
 
 **Response:**
 ```json
 {
-  "accessToken": "secure-access-token",
-  "refreshToken": "secure-refresh-token",
   "username": "user-here"
 }
 ```
+
+**HttpOnly Cookies:**
+
+* `accessToken:` Refreshed and sent back to the client.
+
 **Status Codes:**
 
 * `200 OK`: Token Refresh Successful

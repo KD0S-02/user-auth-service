@@ -1,6 +1,9 @@
 package com.kd0s.user_auth_service.controllers;
 
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,8 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.kd0s.user_auth_service.config.auth.TokenProvider;
-import com.kd0s.user_auth_service.dtos.JwtDto;
-import com.kd0s.user_auth_service.dtos.RefreshTokenDto;
 import com.kd0s.user_auth_service.dtos.SignInDto;
 import com.kd0s.user_auth_service.dtos.SignUpDto;
 import com.kd0s.user_auth_service.enums.UserRole;
@@ -22,6 +23,10 @@ import com.kd0s.user_auth_service.models.TokenEntity;
 import com.kd0s.user_auth_service.models.UserEntity;
 import com.kd0s.user_auth_service.services.AuthService;
 import com.kd0s.user_auth_service.services.TokenService;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -54,7 +59,7 @@ public class AuthController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<JwtDto> signIn(@RequestBody @Validated SignInDto data) {
+    public ResponseEntity<String> signIn(@RequestBody @Validated SignInDto data, HttpServletResponse response) {
 
         if (data.password() == null || data.username() == null)
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -75,25 +80,63 @@ public class AuthController {
 
         tokenService.saveToken(tokenEntity);
 
-        return new ResponseEntity<>(new JwtDto(accessToken, refreshToken, user.getUsername()), HttpStatus.OK);
+        ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", accessToken)
+                .httpOnly(true)
+                .sameSite("Strict")
+                .secure(false)
+                .path("/")
+                .maxAge(10 * 60)
+                .build();
+        response.addHeader("Set-Cookie", accessTokenCookie.toString());
+
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .sameSite("Strict")
+                .secure(false)
+                .path("/")
+                .maxAge(10 * 24 * 3600)
+                .build();
+        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
+
+        return new ResponseEntity<String>(user.getUsername(), HttpStatus.OK);
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<JwtDto> refresh(@RequestBody @Validated RefreshTokenDto data) {
+    public ResponseEntity<String> refresh(HttpServletRequest request, HttpServletResponse response) {
 
-        if (data.token() == null || !tokenService.isExists(data.token()))
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        Cookie cookies[] = request.getCookies();
+
+        if (cookies == null)
+            return new ResponseEntity<String>("No cookies found", HttpStatus.UNAUTHORIZED);
+
+        String refreshToken = null;
+
+        for (Cookie cookie : cookies) {
+            if ("refreshToken".equals(cookie.getName())) {
+                refreshToken = cookie.getValue();
+                break;
+            }
+        }
+
+        if (refreshToken == null || !tokenService.isExists(refreshToken))
+            return new ResponseEntity<>("Refresh token not found", HttpStatus.UNAUTHORIZED);
 
         String accessToken;
         String username;
 
         try {
-            username = tokenProvider.validateToken(data.token());
+            username = tokenProvider.validateToken(refreshToken);
             accessToken = tokenProvider.generateAccessToken(username);
         } catch (JWTVerificationException exception) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        return new ResponseEntity<>(new JwtDto(accessToken, data.token(), username), HttpStatus.OK);
+        Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setMaxAge(10 * 60);
+
+        response.addCookie(accessTokenCookie);
+
+        return new ResponseEntity<>(String.format("{\"username\" : \"%s\" }", username), HttpStatus.OK);
     }
 }
