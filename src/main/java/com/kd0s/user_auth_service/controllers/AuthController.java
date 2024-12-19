@@ -1,7 +1,5 @@
 package com.kd0s.user_auth_service.controllers;
 
-import java.util.Map;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -59,7 +57,8 @@ public class AuthController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<String> signIn(@RequestBody @Validated SignInDto data, HttpServletResponse response) {
+    public ResponseEntity<String> signIn(@RequestBody @Validated SignInDto data, HttpServletResponse response)
+            throws Exception {
 
         if (data.password() == null || data.username() == null)
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -85,7 +84,7 @@ public class AuthController {
                 .sameSite("Strict")
                 .secure(false)
                 .path("/")
-                .maxAge(10 * 60)
+                .maxAge(20 * 60)
                 .build();
         response.addHeader("Set-Cookie", accessTokenCookie.toString());
 
@@ -102,7 +101,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<String> refresh(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<String> refresh(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         Cookie cookies[] = request.getCookies();
 
@@ -133,7 +132,7 @@ public class AuthController {
 
         Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
         accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setMaxAge(10 * 60);
+        accessTokenCookie.setMaxAge(20 * 60);
 
         response.addCookie(accessTokenCookie);
 
